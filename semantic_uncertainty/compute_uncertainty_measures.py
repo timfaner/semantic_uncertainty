@@ -58,6 +58,7 @@ def main(args):
         )
 
         def restore(filename):
+
             old_run.file(filename).download(
                 replace=True, exist_ok=False, root=wandb.run.dir)
 
@@ -102,7 +103,6 @@ def main(args):
         logging.info('Beginning loading for entailment model.')
         if args.entailment_model == 'deberta':
             entailment_model = EntailmentDeberta()
-
         # TODO deepseek
         elif args.entailment_model == 'gpt-4':
             entailment_model = EntailmentGPT4(args.entailment_cache_id, args.entailment_cache_only)

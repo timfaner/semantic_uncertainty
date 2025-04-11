@@ -1,6 +1,6 @@
 import os
 import hashlib
-from tenacity import retry, wait_random_exponential, retry_if_not_exception_type
+from tenacity import retry, wait_random_exponential, retry_if_not_exception_type,stop_after_attempt
 
 from openai import OpenAI
 
@@ -13,7 +13,7 @@ class KeyError(Exception):
     pass
 
 
-@retry(retry=retry_if_not_exception_type(KeyError), wait=wait_random_exponential(min=1, max=10))
+@retry(retry=retry_if_not_exception_type(KeyError), wait=wait_random_exponential(min=1, max=10),stop=stop_after_attempt(6))
 def predict(prompt, temperature=1.0, model='gpt-4o'):
     """Predict with GPT models."""
 

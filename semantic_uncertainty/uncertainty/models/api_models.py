@@ -12,11 +12,11 @@ from uncertainty.models.base_model import STOP_SEQUENCES
 
 import os
 import hashlib
-from tenacity import retry, wait_random_exponential, retry_if_not_exception_type
+from tenacity import retry, wait_random_exponential, retry_if_not_exception_type,stop_after_attempt
 
 from openai import OpenAI
-
-
+import openai
+import time
 
 
 
@@ -45,9 +45,12 @@ class APIModel(BaseModel):
 
 
         self.model_name = model_name
-        self.stop_sequences = stop_sequences + [self.tokenizer.eos_token]
-        self.token_limit = 4096 if 'Llama-2' in model_name else 2048
+        self.stop_sequences = stop_sequences
+
+
+        self.token_limit =  10000
         
+
         
         self.client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY', False))
 
@@ -58,7 +61,7 @@ class APIModel(BaseModel):
 
         
 
-    @retry(retry=retry_if_not_exception_type(KeyError), wait=wait_random_exponential(min=1, max=10))
+    @retry(retry=retry_if_not_exception_type(KeyError), wait=wait_random_exponential(min=1, max=10),stop=stop_after_attempt(6))
     def get_p_true(self, input_data):
         """
         计算 GPT-4 在给定 input_data 后，紧跟一个 " A" 的对数似然（log probability）。
@@ -69,35 +72,31 @@ class APIModel(BaseModel):
         messages = [
                 {'role': 'user', 'content': input_data + " A"},
             ]
-
-        response = self.client.chat.completions.create(
-            model=self.model_name,
-            messages=messages,
-            max_completion_tokens=self.max_new_tokens,
-            temperature=0,
-            logprobs =True,
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=messages,
+                max_completion_tokens=self.max_new_tokens,
+                temperature=0,
+                logprobs =True,
             top_logprobs=2
         )
+        except openai.RateLimitError as e:
+            logging.error(f"RateLimitError: {e}")
+            time.sleep(10)
+            raise e
         # 只取第一个 choice
-        choice = response["choices"][0]
-        logprobs_info = choice["logprobs"]['content']
+        choice = response.choices[0]
+        logprobs_info = choice.logprobs.content
 
-        last_token_logprob = logprobs_info[-1]['logprob']
+        last_token_logprob = logprobs_info[-1].logprob
         
-        last_token = logprobs_info[-1]['token']
-
-        # 确保分词正确
-        if not last_token=="A":
-            AssertionError(f"分词错误，{last_token}")
-            
-
-        # 一般最后一个 token 就是 " A" 或者被分成 " " 和 "A" 两部分
-        # 这里直接拿最后一个 token 的对数似然
+        last_token = logprobs_info[-1].token
         
         return last_token_logprob
     
-    @retry(retry=retry_if_not_exception_type(KeyError), wait=wait_random_exponential(min=1, max=10))
-    def predict(self,prompt, temperature=1.0, model='gpt-4',return_full=False):
+    @retry(retry=retry_if_not_exception_type(KeyError), wait=wait_random_exponential(min=1, max=10),stop=stop_after_attempt(6))
+    def predict(self,prompt, temperature=1.0,return_full=False):
         """Predict with GPT models."""
 
 
@@ -112,7 +111,7 @@ class APIModel(BaseModel):
 
 
         response = self.client.chat.completions.create(
-            model=model,
+            model=self.model_name,
             messages=messages,
             max_completion_tokens=self.max_new_tokens,
             temperature=temperature,
@@ -131,7 +130,7 @@ class APIModel(BaseModel):
             token_log_likelihoods = None
         
         # TODO 获取 last token embedding 以便于计算 p(ik) // p(I dont know), 确保向量维度一样
-        last_token_embedding = ""
+        last_token_embedding = None
     
         # TODO 检查
         return output, token_log_likelihoods, last_token_embedding

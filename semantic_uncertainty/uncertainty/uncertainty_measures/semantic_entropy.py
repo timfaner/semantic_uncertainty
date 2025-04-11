@@ -77,6 +77,7 @@ class EntailmentLLM(BaseEntailment):
             raise ValueError
         prompt = self.equivalence_prompt(text1, text2, example['question'])
 
+        logging.info('Start checking entailment with prompt')
         logging.info('%s input: %s', self.name, prompt)
 
         hashed = oai.md5hash(prompt)
@@ -90,6 +91,7 @@ class EntailmentLLM(BaseEntailment):
             self.prediction_cache[hashed] = response
 
         logging.info('%s prediction: %s', self.name, response)
+        logging.info('\n')
 
         binary_response = response.lower()[:30]
         if 'entailment' in binary_response:

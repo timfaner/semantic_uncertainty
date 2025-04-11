@@ -34,7 +34,7 @@ def main(args):
     random.seed(args.random_seed)
     user = os.environ['USER']
     slurm_jobid = os.getenv('SLURM_JOB_ID', None)
-    scratch_dir = os.getenv('SCRATCH_DIR', '.')
+    scratch_dir = os.getenv('SCRATCH_DIR', '')
     if not os.path.exists(f"{scratch_dir}/{user}/uncertainty"):
         os.makedirs(f"{scratch_dir}/{user}/uncertainty")
 
