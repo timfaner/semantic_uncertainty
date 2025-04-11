@@ -137,4 +137,6 @@ dmypy.json
 .vscode
 
 data/
-models/
+
+root/uncertainty/
+models/huggingface

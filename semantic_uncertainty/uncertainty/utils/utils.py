@@ -9,6 +9,7 @@ import wandb
 from evaluate import load
 
 from uncertainty.models.huggingface_models import HuggingfaceModel
+from uncertainty.models.api_models import APIModel
 from uncertainty.utils import openai as oai
 
 BRIEF_PROMPTS = {
@@ -276,6 +277,10 @@ def init_model(args):
     mn = args.model_name
     if 'llama' in mn.lower() or 'falcon' in mn or 'mistral' in mn.lower():
         model = HuggingfaceModel(
+            mn, stop_sequences='default',
+            max_new_tokens=args.model_max_new_tokens)
+    elif 'gpt' in mn.lower() or 'deepseek' in mn.lower():
+        model = APIModel(
             mn, stop_sequences='default',
             max_new_tokens=args.model_max_new_tokens)
     else:

@@ -121,6 +121,17 @@ class EntailmentGPT4(EntailmentLLM):
     def predict(self, prompt, temperature):
         return oai.predict(prompt, temperature, model=self.name)
 
+class EntailmentGPT4omini(EntailmentGPT4):
+
+    def __init__(self, entailment_cache_id, entailment_cache_only):
+        super().__init__(entailment_cache_id, entailment_cache_only)
+        self.name = 'gpt-4o-mini'
+
+class EntailmentGPT4o(EntailmentGPT4):
+
+    def __init__(self, entailment_cache_id, entailment_cache_only):
+        super().__init__(entailment_cache_id, entailment_cache_only)
+        self.name = 'gpt-4o'
 
 class EntailmentGPT35(EntailmentGPT4):
 

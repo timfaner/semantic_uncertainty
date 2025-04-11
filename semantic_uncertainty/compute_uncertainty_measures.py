@@ -18,6 +18,8 @@ from uncertainty.uncertainty_measures.semantic_entropy import context_entails_re
 from uncertainty.uncertainty_measures.semantic_entropy import EntailmentDeberta
 from uncertainty.uncertainty_measures.semantic_entropy import EntailmentGPT4
 from uncertainty.uncertainty_measures.semantic_entropy import EntailmentGPT35
+from uncertainty.uncertainty_measures.semantic_entropy import EntailmentGPT4o
+from uncertainty.uncertainty_measures.semantic_entropy import EntailmentGPT4omini
 from uncertainty.uncertainty_measures.semantic_entropy import EntailmentGPT4Turbo
 from uncertainty.uncertainty_measures.semantic_entropy import EntailmentLlama
 from uncertainty.uncertainty_measures import p_true as p_true_utils
@@ -100,8 +102,14 @@ def main(args):
         logging.info('Beginning loading for entailment model.')
         if args.entailment_model == 'deberta':
             entailment_model = EntailmentDeberta()
+
+        # TODO deepseek
         elif args.entailment_model == 'gpt-4':
             entailment_model = EntailmentGPT4(args.entailment_cache_id, args.entailment_cache_only)
+        elif args.entailment_model == 'gpt-4o':
+            entailment_model = EntailmentGPT4o(args.entailment_cache_id, args.entailment_cache_only)
+        elif args.entailment_model == 'gpt-4o-mini':
+            entailment_model = EntailmentGPT4omini(args.entailment_cache_id, args.entailment_cache_only)
         elif args.entailment_model == 'gpt-3.5':
             entailment_model = EntailmentGPT35(args.entailment_cache_id, args.entailment_cache_only)
         elif args.entailment_model == 'gpt-4-turbo':

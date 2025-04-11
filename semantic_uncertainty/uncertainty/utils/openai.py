@@ -14,7 +14,7 @@ class KeyError(Exception):
 
 
 @retry(retry=retry_if_not_exception_type(KeyError), wait=wait_random_exponential(min=1, max=10))
-def predict(prompt, temperature=1.0, model='gpt-4'):
+def predict(prompt, temperature=1.0, model='gpt-4o'):
     """Predict with GPT models."""
 
     if not CLIENT.api_key:
