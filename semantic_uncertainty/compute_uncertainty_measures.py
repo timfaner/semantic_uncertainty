@@ -58,7 +58,7 @@ def main(args):
         )
 
         def restore(filename):
-
+            filename = 'files/' + filename
             old_run.file(filename).download(
                 replace=True, exist_ok=False, root=wandb.run.dir)
 
