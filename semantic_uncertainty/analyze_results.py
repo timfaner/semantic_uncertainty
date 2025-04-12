@@ -25,7 +25,7 @@ def init_wandb(wandb_runid, assign_new_wandb_id, experiment_lot, entity):
     """Initialize wandb session."""
     user = os.environ['USER']
     slurm_jobid = os.getenv('SLURM_JOB_ID')
-    scratch_dir = os.getenv('SCRATCH_DIR', '.')
+    scratch_dir = os.getenv('SCRATCH_DIR', '')
     kwargs = dict(
         entity=entity,
         project='semantic_uncertainty',
@@ -44,7 +44,7 @@ def init_wandb(wandb_runid, assign_new_wandb_id, experiment_lot, entity):
         wandb.init(**kwargs)
 
         old_run = api.run(f'{entity}/semantic_uncertainty/{wandb_runid}')
-        old_run.file(UNC_MEAS).download(
+        old_run.file(f'{UNC_MEAS}').download(
             replace=True, exist_ok=False, root=wandb.run.dir)
 
 

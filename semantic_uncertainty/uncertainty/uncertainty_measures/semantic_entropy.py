@@ -7,6 +7,7 @@ import numpy as np
 import wandb
 import torch
 import torch.nn.functional as F
+from scipy.special import logsumexp
 
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
@@ -235,7 +236,8 @@ def logsumexp_by_id(semantic_ids, log_likelihoods, agg='sum_normalized'):
         if agg == 'sum_normalized':
             # log_lik_norm = id_log_likelihoods - np.prod(log_likelihoods)
             log_lik_norm = id_log_likelihoods - np.log(np.sum(np.exp(log_likelihoods)))
-            logsumexp_value = np.log(np.sum(np.exp(log_lik_norm)))
+            logsumexp_value = logsumexp(log_lik_norm)
+            # logsumexp_value = np.log(np.sum(np.exp(log_lik_norm)))
         else:
             raise ValueError
         log_likelihood_per_semantic_id.append(logsumexp_value)
