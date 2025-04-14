@@ -42,7 +42,7 @@ def get_parser(stages=['generate', 'compute']):
             "--model_name", type=str, default="Llama-2-7b-chat", help="Model name",
         )
         parser.add_argument(
-            "--model_max_new_tokens", type=int, default=50,
+            "--model_max_new_tokens", type=int, default=300,
             help="Max number of tokens generated.",
         )
         parser.add_argument(
@@ -74,9 +74,9 @@ def get_parser(stages=['generate', 'compute']):
             help="Temperature")
         parser.add_argument(
             "--use_mc_options", type=bool, default=True,
-            help="Include MC options question?")
+            help="Include MC 多选options question?")
         parser.add_argument(
-            "--get_training_set_generations", default=True,
+            "--get_training_set_generations", default=False,
             action=argparse.BooleanOptionalAction,
             help="Get generations for training set?")
         parser.add_argument(
@@ -84,12 +84,12 @@ def get_parser(stages=['generate', 'compute']):
             action=argparse.BooleanOptionalAction,
             help="Get generations for training set?")
         parser.add_argument(
-            "--get_training_set_generations_most_likely_only", default=True,
+            "--get_training_set_generations_most_likely_only", default=False,
             action=argparse.BooleanOptionalAction,
             help=(
                 "Only get embedding of most likely answer for training set. "
                 "This is all that's needed for p_true."))
-        parser.add_argument('--compute_p_true', default=True,
+        parser.add_argument('--compute_p_true', default=False,
                             action=argparse.BooleanOptionalAction)
         parser.add_argument(
             "--brief_always", default=False, action=argparse.BooleanOptionalAction)
@@ -118,7 +118,7 @@ def get_parser(stages=['generate', 'compute']):
         parser.add_argument('--num_eval_samples', type=int, default=int(1e19))
         parser.add_argument('--compute_predictive_entropy',
                             default=True, action=argparse.BooleanOptionalAction)
-        parser.add_argument('--compute_p_ik', default=True,
+        parser.add_argument('--compute_p_ik', default=False,
                             action=argparse.BooleanOptionalAction)
         parser.add_argument('--compute_p_ik_answerable', default=False,
                             action=argparse.BooleanOptionalAction)
@@ -136,7 +136,7 @@ def get_parser(stages=['generate', 'compute']):
                             default=True, action=argparse.BooleanOptionalAction)
         parser.add_argument('--use_all_generations', default=True, action=argparse.BooleanOptionalAction)
         parser.add_argument('--use_num_generations', type=int, default=-1)
-        parser.add_argument("--entailment_model", default='deberta', type=str)
+        parser.add_argument("--entailment_model", default='gpt-4o-mini', type=str)
         parser.add_argument(
             "--entailment_cache_id", default=None, type=str,
             help='Restore entailment predictions from previous run for GPT-4/LLaMa-Entailment.')
