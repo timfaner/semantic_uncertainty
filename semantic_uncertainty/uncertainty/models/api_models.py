@@ -17,7 +17,7 @@ from tenacity import retry, wait_random_exponential, retry_if_not_exception_type
 from openai import OpenAI
 import openai
 import time
-
+from uncertainty.utils.openai import predict,CLIENT
 
 
 class KeyError(Exception):
@@ -52,16 +52,16 @@ class APIModel(BaseModel):
         
 
         
-        self.client = OpenAI(api_key=os.environ.get('OPENAI_API_KEY', False))
+        self.client = CLIENT
 
         if not self.client.api_key:
             raise KeyError('Need to provide OpenAI API key in environment variable `OPENAI_API_KEY`.')
         
-        ## TODO 加代理
+
 
         
 
-    @retry(retry=retry_if_not_exception_type(KeyError), wait=wait_random_exponential(min=1, max=10),stop=stop_after_attempt(6))
+    @retry(wait=wait_random_exponential(min=1, max=10),stop=stop_after_attempt(4))
     def get_p_true(self, input_data):
         """
         计算 GPT-4 在给定 input_data 后，紧跟一个 " A" 的对数似然（log probability）。
@@ -83,7 +83,6 @@ class APIModel(BaseModel):
         )
         except openai.RateLimitError as e:
             logging.error(f"RateLimitError: {e}")
-            time.sleep(10)
             raise e
         # 只取第一个 choice
         choice = response.choices[0]
@@ -95,7 +94,7 @@ class APIModel(BaseModel):
         
         return last_token_logprob
     
-    @retry(retry=retry_if_not_exception_type(KeyError), wait=wait_random_exponential(min=1, max=10),stop=stop_after_attempt(6))
+    @retry(wait=wait_random_exponential(min=1, max=10),stop=stop_after_attempt(4))
     def predict(self,prompt, temperature=1.0,return_full=False):
         """Predict with GPT models."""
 
@@ -109,15 +108,21 @@ class APIModel(BaseModel):
             messages = prompt
 
 
-
-        response = self.client.chat.completions.create(
-            model=self.model_name,
-            messages=messages,
-            max_completion_tokens=self.max_new_tokens,
-            temperature=temperature,
-            logprobs =True,
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=messages,
+                max_completion_tokens=self.max_new_tokens,
+                temperature=temperature,
+                logprobs =True,
             top_logprobs=2
         )
+        except openai.RateLimitError as e:
+            logging.error(f"RateLimitError: {e}")
+            raise e
+        except openai.APITimeoutError as e:
+            logging.error(f"APITimeoutError: {e}")
+            raise e
         token_log_likelihoods = []
         output = response.choices[0].message.content
 

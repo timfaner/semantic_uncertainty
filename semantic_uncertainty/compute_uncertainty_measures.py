@@ -291,6 +291,8 @@ def main(args):
         if count >= args.num_eval_samples:
             logging.info('Breaking out of main loop.')
             break
+        if count % args.entailment_save_interval == 0 and args.compute_predictive_entropy:
+            entailment_model.save_prediction_cache()
 
     logging.info('Accuracy on original task: %f', np.mean(validation_is_true))
     validation_is_false = [1.0 - is_t for is_t in validation_is_true]

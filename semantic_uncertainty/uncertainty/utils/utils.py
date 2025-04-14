@@ -141,6 +141,7 @@ def get_parser(stages=['generate', 'compute']):
             "--entailment_cache_id", default=None, type=str,
             help='Restore entailment predictions from previous run for GPT-4/LLaMa-Entailment.')
         parser.add_argument('--entailment_cache_only', default=False, action=argparse.BooleanOptionalAction)
+        parser.add_argument('--entailment_save_interval', type=int, default=20)
         parser.add_argument('--compute_p_true_in_compute_stage',
                             default=False, action=argparse.BooleanOptionalAction)
         parser.add_argument('--reuse_entailment_model',

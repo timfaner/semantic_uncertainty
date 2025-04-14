@@ -74,6 +74,8 @@ The only exception is BioASQ (task b, BioASQ11, 2023), for which the data needs 
 
 
 
+如果需要使用代理，可以参考 https://github.com/linrong123/clashforshell
+
 ## Demo
 
 Execute
