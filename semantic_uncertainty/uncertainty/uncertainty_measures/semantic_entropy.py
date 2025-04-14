@@ -94,12 +94,22 @@ class EntailmentLLM(BaseEntailment):
         logging.info('%s prediction: %s', self.name, response)
         logging.info('\n')
 
-        binary_response = response.lower()[:30]
-        if 'entailment' in binary_response:
-            return 2
-        elif 'neutral' in binary_response:
+        response = response.lower()
+
+        entailment_index = response.find("entailment")
+        neutral_index = response.find("neutral")
+        contradiction_index = response.find("contradiction")
+
+        # only one of the three should be non-negative, the rest should be -1. if break ,logging a error
+        if (entailment_index != -1) + (neutral_index != -1) + (contradiction_index != -1) != 1:
+            logging.error('Invalid response when checking entailment, no  result: %s', response)
             return 1
-        elif 'contradiction' in binary_response:
+
+        if entailment_index != -1:
+            return 2
+        elif neutral_index != -1:
+            return 1
+        elif contradiction_index != -1:
             return 0
         else:
             logging.warning('MANUAL NEUTRAL!')

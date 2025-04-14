@@ -27,8 +27,8 @@ def get_parser(stages=['generate', 'compute']):
     parser.add_argument('--entity', type=str, default=entity)
     parser.add_argument('--random_seed', type=int, default=10)
     parser.add_argument(
-        "--metric", type=str, default="squad",
-        choices=['squad', 'llm', 'llm_gpt-3.5', 'llm_gpt-4'],
+        "--metric", type=str, default="llm_gpt-4o-mini",
+        choices=['squad', 'llm', 'llm_gpt-3.5', 'llm_gpt-4', 'llm_gpt-4o', 'llm_gpt-4o-mini'],
         help="Metric to assign accuracy to generations.")
     parser.add_argument(
         "--compute_accuracy_at_all_temps",
@@ -335,6 +335,10 @@ def get_metric(metric):
     elif metric == 'llm_gpt-3.5':
         metric = get_gpt_metric(metric)
     elif metric == 'llm_gpt-4':
+        metric = get_gpt_metric(metric)
+    elif metric == 'llm_gpt-4o':
+        metric = get_gpt_metric(metric)
+    elif metric == 'llm_gpt-4o-mini':
         metric = get_gpt_metric(metric)
     else:
         raise ValueError
