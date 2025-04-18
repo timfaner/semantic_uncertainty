@@ -13,7 +13,7 @@ python3 semantic_uncertainty/compute_uncertainty_measures.py --eval_wandb_runid=
 - 简单sample
 
 
-### 对比LLama 和 gpt4o 在  bioasq上的 auroc
+### 对比LLama 和 gpt4o 在  squad 上的  auroc
 python3 semantic_uncertainty/generate_answers.py --model_name=Llama-2-7b-chat --dataset=squad --no-compute_p_ik  --no-compute_p_ik_answerable  --no-compute_p_true
 
 
@@ -24,4 +24,4 @@ python3 semantic_uncertainty/generate_answers.py --model_name=gpt-4o-mini --data
 python3 semantic_uncertainty/compute_uncertainty_measures.py --eval_wandb_runid=替换成上两步的id --assign_new_wandb_id --entailment_model=gpt-4o-mini --restore_entity_eval=""  --no-compute_p_ik  --no-compute_p_ik_answerable
 
 
-
+python3 semantic_uncertainty/generate_answers.py --model_name=Llama-2-7b-chat --dataset=bioasq --no-compute_p_ik  --no-compute_p_ik_answerable  --no-compute_p_true && python3 semantic_uncertainty/generate_answers.py --model_name=gpt-4o-mini --dataset=bioasq --no-compute_p_ik  --no-compute_p_ik_answerable  --no-compute_p_true

@@ -99,6 +99,41 @@ def load_ds(dataset_name, seed, add_options=None):
         train_dataset = dataset['train']
         validation_dataset = dataset['test']
 
+    elif dataset_name == "deepintent":
+        scratch_dir = os.getenv('SCRATCH_DIR', '')
+        path = f"{scratch_dir}/{user}/semantic_uncertainty/data/deepintent/deepintent.jsonl"
+        with open(path, "r") as file:
+            datas = [json.loads(line) for line in file]
+
+        dataset_dict = {
+            "question": [],
+            "answers": [],
+            "id": [],
+            "context": []
+        }
+
+        for data in datas:
+
+            if len(data['risk_type']) > 1:
+                answer = " and ".join(data['risk_type'])
+            else:
+                answer = data['risk_type'][0]
+
+            question = data['function_code'].replace("\r", " ")
+            question = question.replace("\t", " ")
+            question = question.replace("\n", " ")
+            dataset_dict['question'].append( question )
+            dataset_dict['answers'].append( { 'text': [answer] , 'answer_start': [0] } )
+            dataset_dict['id'].append( data['id'])
+            dataset_dict['context'].append( None )
+
+        dataset = datasets.Dataset.from_dict(dataset_dict)
+        dataset = dataset.train_test_split(test_size=0.8, seed=seed)
+        train_dataset = dataset['train']
+        validation_dataset = dataset['test']
+        
+        
+        
     else:
         raise ValueError
 

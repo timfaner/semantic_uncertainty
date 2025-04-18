@@ -87,6 +87,7 @@ class EntailmentLLM(BaseEntailment):
             response = self.prediction_cache[hashed]
         else:
             if self.entailment_cache_only:
+                logging.error('Entailment cache only mode, can\'t locate hash in cache')
                 raise ValueError
             response = self.predict(prompt, temperature=0.02)
             self.prediction_cache[hashed] = response
