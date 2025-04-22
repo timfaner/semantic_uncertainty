@@ -105,17 +105,17 @@ def main(args):
             entailment_model = EntailmentDeberta()
         # TODO deepseek
         elif args.entailment_model == 'gpt-4':
-            entailment_model = EntailmentGPT4(args.entailment_cache_id, args.entailment_cache_only)
+            entailment_model = EntailmentGPT4(args.entailment_cache_id, args.entailment_cache_only, args.entailment_prompt)
         elif args.entailment_model == 'gpt-4o':
-            entailment_model = EntailmentGPT4o(args.entailment_cache_id, args.entailment_cache_only)
+            entailment_model = EntailmentGPT4o(args.entailment_cache_id, args.entailment_cache_only, args.entailment_prompt)
         elif args.entailment_model == 'gpt-4o-mini':
-            entailment_model = EntailmentGPT4omini(args.entailment_cache_id, args.entailment_cache_only)
+            entailment_model = EntailmentGPT4omini(args.entailment_cache_id, args.entailment_cache_only, args.entailment_prompt)
         elif args.entailment_model == 'gpt-3.5':
-            entailment_model = EntailmentGPT35(args.entailment_cache_id, args.entailment_cache_only)
+            entailment_model = EntailmentGPT35(args.entailment_cache_id, args.entailment_cache_only, args.entailment_prompt)
         elif args.entailment_model == 'gpt-4-turbo':
-            entailment_model = EntailmentGPT4Turbo(args.entailment_cache_id, args.entailment_cache_only)
+            entailment_model = EntailmentGPT4Turbo(args.entailment_cache_id, args.entailment_cache_only, args.entailment_prompt)
         elif 'llama' in args.entailment_model.lower():
-            entailment_model = EntailmentLlama(args.entailment_cache_id, args.entailment_cache_only, args.entailment_model)
+            entailment_model = EntailmentLlama(args.entailment_cache_id, args.entailment_cache_only, args.entailment_model, args.entailment_prompt)
         else:
             raise ValueError
         logging.info('Entailment model loading complete.')

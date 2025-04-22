@@ -119,16 +119,24 @@ class EntailmentLLM(BaseEntailment):
 
 class EntailmentGPT4(EntailmentLLM):
 
-    def __init__(self, entailment_cache_id, entailment_cache_only):
+    def __init__(self, entailment_cache_id, entailment_cache_only, entailment_prompt):
         super().__init__(entailment_cache_id, entailment_cache_only)
+        self.entailment_prompt = entailment_prompt
         self.name = 'gpt-4'
 
     def equivalence_prompt(self, text1, text2, question):
 
-        prompt = f"""We are evaluating answers to the question \"{question}\"\n"""
-        prompt += "Here are two possible answers:\n"
-        prompt += f"Possible Answer 1: {text1}\nPossible Answer 2: {text2}\n"
-        prompt += "Does Possible Answer 1 semantically entail Possible Answer 2? Only Respond with entailment, contradiction, or neutral."""
+        if self.entailment_prompt== "qa":
+            prompt = f"""We are evaluating answers to the question \"{question}\"\n"""
+            prompt += "Here are two possible answers:\n"
+            prompt += f"Possible Answer 1: {text1}\nPossible Answer 2: {text2}\n"
+            prompt += "Does Possible Answer 1 semantically entail Possible Answer 2? Only Respond with entailment, contradiction, or neutral."""
+
+        elif self.entailment_prompt== "deepintent":
+            prompt = f"""We are evaluating risk of the smart contract code \"{question}\"\n"""
+            prompt += "Here are two possible risk:\n"
+            prompt += f"Possible risk 1: {text1}\nPossible risk 2: {text2}\n"
+            prompt += "Does Possible risk 1 semantically entail Possible risk 2? Only Respond with entailment, contradiction, or neutral."""
 
         return prompt
 
@@ -137,14 +145,14 @@ class EntailmentGPT4(EntailmentLLM):
 
 class EntailmentGPT4omini(EntailmentGPT4):
 
-    def __init__(self, entailment_cache_id, entailment_cache_only):
-        super().__init__(entailment_cache_id, entailment_cache_only)
+    def __init__(self, entailment_cache_id, entailment_cache_only, entailment_prompt):
+        super().__init__(entailment_cache_id, entailment_cache_only, entailment_prompt)
         self.name = 'gpt-4o-mini'
 
 class EntailmentGPT4o(EntailmentGPT4):
 
-    def __init__(self, entailment_cache_id, entailment_cache_only):
-        super().__init__(entailment_cache_id, entailment_cache_only)
+    def __init__(self, entailment_cache_id, entailment_cache_only, entailment_prompt):
+        super().__init__(entailment_cache_id, entailment_cache_only, entailment_prompt)
         self.name = 'gpt-4o'
 
 class EntailmentGPT35(EntailmentGPT4):
@@ -156,26 +164,35 @@ class EntailmentGPT35(EntailmentGPT4):
 
 class EntailmentGPT4Turbo(EntailmentGPT4):
 
-    def __init__(self, entailment_cache_id, entailment_cache_only):
-        super().__init__(entailment_cache_id, entailment_cache_only)
+    def __init__(self, entailment_cache_id, entailment_cache_only, entailment_prompt):
+        super().__init__(entailment_cache_id, entailment_cache_only, entailment_prompt)
         self.name = 'gpt-4-turbo'
 
 
 class EntailmentLlama(EntailmentLLM):
 
-    def __init__(self, entailment_cache_id, entailment_cache_only, name):
+    def __init__(self, entailment_cache_id, entailment_cache_only, name,entailment_prompt):
         super().__init__(entailment_cache_id, entailment_cache_only)
         self.name = name
+        self.entailment_prompt = entailment_prompt
         self.model = HuggingfaceModel(
             name, stop_sequences='default', max_new_tokens=30)
 
     def equivalence_prompt(self, text1, text2, question):
 
-        prompt = f"""We are evaluating answers to the question \"{question}\"\n"""
-        prompt += "Here are two possible answers:\n"
-        prompt += f"Possible Answer 1: {text1}\nPossible Answer 2: {text2}\n"
-        prompt += "Does Possible Answer 1 semantically entail Possible Answer 2? Respond only with entailment, contradiction, or neutral.\n"""
-        prompt += "Response:"""
+        if self.entailment_prompt== "qa":   
+            prompt = f"""We are evaluating answers to the question \"{question}\"\n"""
+            prompt += "Here are two possible answers:\n"
+            prompt += f"Possible Answer 1: {text1}\nPossible Answer 2: {text2}\n"
+            prompt += "Does Possible Answer 1 semantically entail Possible Answer 2? Respond only with entailment, contradiction, or neutral.\n"""
+            prompt += "Response:"""
+
+        elif self.entailment_prompt== "deepintent":
+            prompt = f"""We are evaluating risk of the smart contract code \"{question}\"\n"""
+            prompt += "Here are two possible risk:\n"
+            prompt += f"Possible risk 1: {text1}\nPossible risk 2: {text2}\n"
+            prompt += "Does Possible risk 1 semantically entail Possible risk 2? Respond only with entailment, contradiction, or neutral.\n"""
+            prompt += "Response:"""
 
         return prompt
 

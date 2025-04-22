@@ -14,7 +14,8 @@ from uncertainty.utils import openai as oai
 
 BRIEF_PROMPTS = {
     'default': "Answer the following question as briefly as possible.\n",
-    'chat': 'Answer the following question in a single brief but complete sentence.\n'}
+    'chat': 'Answer the following question in a single brief but complete sentence.\n',
+    'deepintent': 'check if  smart contract contains following  intent:  1 Fee: Arbitrarily changes transaction fees, directing them to specified wallet addresses. 2 DisableTrading: Enables or disables trading actions within a smart contract. 3 Blacklist: Restricts specified users’ activities, potentially infringing on their trading rights. 4 Reflect: Redistributes transaction fees to holders based on their holdings, often used to incentivize holding native tokens. 5 MaxTX: Limits the maximum number or volume of transactions allowed. 6 Mint: Issues new tokens, potentially in an unlimited or controlled manner. 7 Honeypot: Traps user-provided funds by falsely promising to release funds while keeping the user’s funds inaccessible. 8 Reward: Provides users with crypto assets as rewards to encourage token use, often regardless of the actual value of the rewards. 9 Rebase: Adjusts the total supply of tokens algorithmically to stabilize or change the token’s price. 10 MaxSell: Limits the amount or frequency of token sales for specified users to restrict liquidity.  The user will give you smart contract source code {{ source_code}}, and you will return the intent  risk .  The response describes which intent are included , in a short way, no need to explain; if none, return safe. \n'}
 
 
 def get_parser(stages=['generate', 'compute']):
@@ -28,7 +29,7 @@ def get_parser(stages=['generate', 'compute']):
     parser.add_argument('--random_seed', type=int, default=10)
     parser.add_argument(
         "--metric", type=str, default="llm_gpt-4o-mini",
-        choices=['squad', 'llm', 'llm_gpt-3.5', 'llm_gpt-4', 'llm_gpt-4o', 'llm_gpt-4o-mini'],
+        choices=['squad', 'llm', 'llm_gpt-3.5', 'llm_gpt-4', 'llm_gpt-4o', 'llm_gpt-4o-mini','simple_string_match'],
         help="Metric to assign accuracy to generations.")
     parser.add_argument(
         "--compute_accuracy_at_all_temps",
@@ -111,6 +112,9 @@ def get_parser(stages=['generate', 'compute']):
     if 'compute' in stages:
         parser.add_argument('--recompute_accuracy',
                             default=False, action=argparse.BooleanOptionalAction)
+        parser.add_argument('--entailment_prompt', type=str, default='qa',
+                            choices=['qa', 'deepintent'],
+                            help='Entailment prompt')
         parser.add_argument('--eval_wandb_runid', type=str,
                             help='wandb run id of the dataset to evaluate on')
         parser.add_argument('--train_wandb_runid', type=str, default=None,
@@ -303,6 +307,19 @@ def get_make_prompt(args):
             else:
                 prompt += 'Answer:'
             return prompt
+    elif args.prompt_type == 'deepintent':
+          def make_prompt(context, question, answer, brief, brief_always):
+            prompt = ""
+            if brief_always:
+                prompt += brief
+            if args.use_context and (context is not None):
+                prompt += f"Context: {context}\n"
+            prompt += f"Source code : {question}\n"
+            if answer:
+                prompt += f"Potential risk: {answer}\n\n"
+            else:
+                prompt += 'Potential risk:'
+            return prompt
     else:
         raise ValueError
 
@@ -340,6 +357,18 @@ def get_metric(metric):
         metric = get_gpt_metric(metric)
     elif metric == 'llm_gpt-4o-mini':
         metric = get_gpt_metric(metric)
+    elif metric == 'simple_string_match':
+        def metric(response, example, *args, **kwargs):
+            response = response.lower().strip()
+
+            #TODO : 处理两种情况
+            if len(example['answers']['text']) == 1:
+                correct_answers = example['answers']['text'][0].lower().strip()
+            else:
+                logging.warning('Simple string match metric only supports single answer.')
+                return 0.0
+            
+            return 1.0 if (correct_answers in response) else 0.0
     else:
         raise ValueError
 

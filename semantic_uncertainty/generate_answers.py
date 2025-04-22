@@ -29,6 +29,13 @@ def main(args):
         if not args.answerable_only:
             logging.info('Forcing `answerable_only=True` for squad dataset.')
             args.answerable_only = True
+    elif args.dataset == 'deepintent':
+        logging.info('Forcing `prompt_type=deepintent, brief_always=False, enable_brief=True` for deepintent dataset.')
+        args.brief_prompt = 'deepintent'
+        args.prompt_type = 'deepintent'
+        args.brief_always = False
+        args.enable_brief = True
+        args.entailment_prompt = 'deepintent'
 
     experiment_details = {'args': args}
     random.seed(args.random_seed)
